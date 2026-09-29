@@ -1,0 +1,672 @@
+/* ==========================================================================
+   ESTILOS - NIGHTMARE IN PIXEL (FNAF 4 & THE THING)
+   Estética de Pixel Art de Terror 16/32-bit limpa (sem scanlines/ruído)
+   ========================================================================== */
+
+:root {
+  --bg-dark: #070709;
+  --bg-room: #130f14;
+  --color-hud: #e2e8f0;
+  --color-accent-red: #e53e3e;
+  --color-danger: #ff2a2a;
+  --color-warning: #ecc94b;
+  --color-safe: #48bb78;
+  --color-wood: #4a2e1b;
+  --font-pixel: 'Press Start 2P', monospace, sans-serif;
+  --font-retro: 'VT323', monospace, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-dark);
+  color: var(--color-hud);
+  font-family: var(--font-pixel);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #151118 0%, #050406 100%);
+}
+
+/* Container do Jogo (Mantém proporção 16:9 pixelizada e nítida) */
+#game-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 1280px;
+  max-height: 720px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+#game-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000000;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 10px rgba(139, 0, 0, 0.25);
+  border: 4px solid #1a161f;
+  overflow: hidden;
+}
+
+/* Canvas de renderização com pixels estritamente nítidos */
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Camadas de HUD */
+.hud-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000;
+}
+
+.hud-left, .hud-center, .hud-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hud-center {
+  align-items: center;
+}
+
+.hud-right {
+  align-items: flex-end;
+}
+
+.hud-badge {
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #332d3b;
+  padding: 4px 8px;
+  font-size: 10px;
+  color: #a0aec0;
+}
+
+/* Tipografia Pixel Art */
+.pixel-title {
+  font-family: var(--font-pixel);
+  font-size: clamp(20px, 4vw, 36px);
+  letter-spacing: 2px;
+  line-height: 1.3;
+}
+
+.pixel-subtext {
+  font-size: clamp(8px, 1.5vw, 12px);
+  color: #a0aec0;
+  letter-spacing: 1px;
+}
+
+.pixel-text-xl {
+  font-size: clamp(24px, 5vw, 42px);
+}
+
+.pixel-text-lg {
+  font-size: clamp(14px, 2.5vw, 20px);
+}
+
+.pixel-text-md {
+  font-size: clamp(11px, 2vw, 15px);
+}
+
+.pixel-text-sm {
+  font-size: clamp(9px, 1.5vw, 12px);
+}
+
+.pixel-text-xs {
+  font-size: clamp(7px, 1.2vw, 10px);
+  line-height: 1.4;
+}
+
+.yellow-text { color: var(--color-warning); }
+.red-text { color: var(--color-danger); }
+.green-text { color: var(--color-safe); }
+
+.red-glow {
+  color: #ff3333;
+  text-shadow: 0 0 10px rgba(255, 51, 51, 0.8), 2px 2px 0 #000;
+}
+
+.yellow-glow {
+  color: #ffdd44;
+  text-shadow: 0 0 8px rgba(255, 221, 68, 0.8), 2px 2px 0 #000;
+}
+
+.green-glow {
+  color: #44ff66;
+  text-shadow: 0 0 10px rgba(68, 255, 102, 0.9), 2px 2px 0 #000;
+}
+
+.blink-red {
+  animation: blinkRedAnim 0.7s infinite alternate ease-in-out;
+}
+
+@keyframes blinkRedAnim {
+  0% { color: #ff2222; opacity: 1; transform: scale(1); }
+  100% { color: #880000; opacity: 0.6; transform: scale(0.98); }
+}
+
+/* Alerta de Animatrônico no Quarto */
+.hud-alert-banner {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 0, 0, 0.88);
+  border: 3px solid var(--color-danger);
+  padding: 12px 24px;
+  z-index: 25;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+}
+
+/* Botões Estilo Pixel Retrô */
+.pixel-btn {
+  font-family: var(--font-pixel);
+  font-size: clamp(8px, 1.5vw, 12px);
+  padding: 10px 18px;
+  cursor: pointer;
+  border: 3px solid #ffffff;
+  outline: none;
+  background: #111;
+  color: #fff;
+  box-shadow: inset -2px -2px 0px #333, inset 2px 2px 0px #fff;
+  transition: transform 0.08s, filter 0.08s, background-color 0.1s;
+  pointer-events: auto;
+}
+
+.pixel-btn:hover {
+  filter: brightness(1.2);
+  transform: translateY(-2px);
+}
+
+.pixel-btn:active {
+  transform: translateY(2px);
+  box-shadow: inset 2px 2px 0px #000, inset -2px -2px 0px #555;
+}
+
+.btn-primary {
+  background: #7a1414;
+  border-color: #ff5252;
+}
+
+.btn-secondary {
+  background: #252836;
+  border-color: #718096;
+}
+
+.btn-warning {
+  background: #805b0c;
+  border-color: #ecc94b;
+  color: #fff;
+  animation: pulseBtn 1s infinite alternate;
+}
+
+.btn-safe {
+  background: #1c663a;
+  border-color: #48bb78;
+  color: #fff;
+}
+
+.pulse-btn {
+  animation: pulseBtn 1.2s infinite alternate;
+}
+
+@keyframes pulseBtn {
+  from { box-shadow: 0 0 5px rgba(255, 82, 82, 0.5); }
+  to { box-shadow: 0 0 18px rgba(255, 82, 82, 0.9); }
+}
+
+/* Camada da Roupa Springlock */
+.springlock-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.springlock-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.95) 75%, #000 100%);
+}
+
+.springlock-visor-mask {
+  position: absolute;
+  inset: 0;
+  /* Máscara metálica mecânica com orifícios dos olhos pixelizados */
+  background: 
+    radial-gradient(ellipse at 30% 45%, transparent 16%, rgba(10, 8, 4, 0.96) 24%),
+    radial-gradient(ellipse at 70% 45%, transparent 16%, rgba(10, 8, 4, 0.96) 24%);
+  border: 12px solid #1c150c;
+  box-shadow: inset 0 0 60px #000;
+}
+
+.springlock-status-box {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 6, 2, 0.9);
+  border: 3px solid #855d14;
+  padding: 12px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 35;
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   EVENTO SECRETO: THE THING
+   Clean camera - NENHUM ruído, sem scanlines, sem estática
+   A imagem original é mantida intacta, nítida e contrastante
+   ========================================================================== */
+.the-thing-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  overflow: hidden;
+  pointer-events: auto;
+  transition: opacity 0.8s ease-in;
+}
+
+.the-thing-darkness {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  opacity: 0.92;
+  z-index: 1;
+}
+
+/* O personagem The Thing: figura estranha e destoante */
+.the-thing-figure-wrap {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  width: min(85vw, 420px);
+  max-height: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  transition: transform 0.4s ease-out, filter 0.3s;
+}
+
+#the-thing-img {
+  width: 100%;
+  height: auto;
+  max-height: 52vh;
+  object-fit: contain;
+  /* Não aplica pixelização destrutiva na imagem para mantê-la reconhecível */
+  filter: drop-shadow(0 0 25px rgba(0, 0, 0, 0.95)) brightness(0.88);
+  pointer-events: none;
+}
+
+.the-thing-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  pointer-events: none;
+}
+
+.the-thing-phrase {
+  margin-top: 15px;
+  text-align: center;
+  letter-spacing: 2px;
+  line-height: 1.4;
+  text-transform: lowercase;
+  font-family: var(--font-pixel);
+  text-shadow: 0 0 12px rgba(255, 0, 0, 0.9), 2px 2px 0px #000;
+}
+
+.the-thing-qte-container {
+  width: 100%;
+  max-width: 580px;
+  background: rgba(10, 0, 0, 0.85);
+  border: 3px solid #8b0000;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 0 25px rgba(139, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+.the-thing-title {
+  color: var(--color-danger);
+  letter-spacing: 2px;
+}
+
+.the-thing-prompt {
+  color: #cbd5e0;
+}
+
+/* Sequência de teclas QTE */
+.qte-sequence-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+
+.qte-key-box {
+  min-width: 44px;
+  padding: 8px 10px;
+  background: #1a1a24;
+  border: 2px solid #4a5568;
+  color: #edf2f7;
+  font-family: var(--font-pixel);
+  font-size: clamp(9px, 1.8vw, 13px);
+  text-align: center;
+  box-shadow: inset -2px -2px 0px #000, inset 2px 2px 0px #718096;
+  transition: transform 0.1s, background-color 0.15s, border-color 0.15s;
+}
+
+.qte-arrow {
+  color: #718096;
+  font-size: 12px;
+}
+
+.qte-key-box.active {
+  border-color: #ffd700;
+  background: #332a0d;
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+}
+
+.qte-key-box.correct {
+  border-color: #38a169;
+  background: #123d24;
+  color: #48bb78;
+  box-shadow: 0 0 10px rgba(72, 187, 120, 0.8);
+  animation: keySuccessPulse 0.25s ease-out;
+}
+
+@keyframes keySuccessPulse {
+  0% { transform: scale(1.25); background: #2f855a; }
+  100% { transform: scale(1); }
+}
+
+.qte-key-box.wrong {
+  border-color: #e53e3e;
+  background: #441111;
+  color: #ff6b6b;
+  animation: keyShake 0.3s ease-in-out;
+}
+
+@keyframes keyShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.qte-timer-bar {
+  width: 100%;
+  height: 8px;
+  background: #200000;
+  border: 1px solid #742a2a;
+}
+
+.qte-timer-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #e53e3e, #ecc94b);
+  transition: width 0.1s linear;
+}
+
+.qte-virtual-keys {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.qte-btn {
+  padding: 6px 10px;
+  font-size: 10px;
+}
+
+/* Tremor e Aproximação */
+.shake-light {
+  animation: shakeLightAnim 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.shake-heavy {
+  animation: shakeHeavyAnim 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shakeLightAnim {
+  10%, 90% { transform: translate3d(-2px, 1px, 0); }
+  20%, 80% { transform: translate3d(2px, -2px, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 2px, 0); }
+  40%, 60% { transform: translate3d(3px, -1px, 0); }
+}
+
+@keyframes shakeHeavyAnim {
+  10%, 90% { transform: translate3d(-6px, 3px, 0); }
+  20%, 80% { transform: translate3d(6px, -5px, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, 6px, 0); }
+  40%, 60% { transform: translate3d(8px, -4px, 0); }
+}
+
+/* Toast de Evento */
+.event-toast {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 20, 10, 0.92);
+  border: 3px solid var(--color-safe);
+  color: #48bb78;
+  padding: 12px 24px;
+  z-index: 40;
+  box-shadow: 0 0 20px rgba(72, 187, 120, 0.6);
+  pointer-events: none;
+}
+
+/* Controles Virtuais para Celular */
+.mobile-controls-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.touch-nav-cluster {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.touch-nav-v-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pixel-nav-btn {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  padding: 8px 10px;
+  background: rgba(20, 16, 26, 0.85);
+  border: 2px solid #5a4b66;
+  color: #cbd5e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-width: 60px;
+  min-height: 40px;
+  box-shadow: inset -2px -2px 0px #000, inset 2px 2px 0px #7b698a;
+  touch-action: manipulation;
+}
+
+.pixel-nav-btn:active {
+  background: #3b2d47;
+  transform: scale(0.95);
+}
+
+.nav-arrow {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.touch-action-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.pixel-action-btn {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  padding: 10px 14px;
+  background: rgba(30, 20, 15, 0.9);
+  border: 2px solid #a66a38;
+  color: #f7fafc;
+  cursor: pointer;
+  min-width: 110px;
+  box-shadow: inset -2px -2px 0px #000, inset 2px 2px 0px #d48b4e;
+  touch-action: manipulation;
+}
+
+.pixel-action-btn.active {
+  background: #c05621;
+  border-color: #fbd38d;
+  box-shadow: 0 0 10px #dd6b20;
+}
+
+/* Telas de Sobreposição (Menu, GameOver, Win) */
+.screen-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 4, 7, 0.94);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.menu-box, .gameover-box, .win-box {
+  max-width: 540px;
+  width: 100%;
+  background: #100b14;
+  border: 4px solid #4a2121;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(139, 0, 0, 0.4);
+}
+
+.menu-instructions {
+  background: #09060b;
+  border: 2px solid #271b2d;
+  padding: 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.key-list {
+  list-style: none;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.key-list li strong {
+  color: var(--color-warning);
+}
+
+.menu-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.credits-note {
+  color: #718096;
+}
+
+.six-am-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.six-am-bounce {
+  animation: bounceAnim 1s infinite alternate;
+}
+
+@keyframes bounceAnim {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.12); }
+}
+
+/* Utilitários */
+.hidden {
+  display: none !important;
+}
