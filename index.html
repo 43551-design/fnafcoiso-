@@ -1,203 +1,282 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Nightmare in Pixel — FNAF 4 & The Thing</title>
+  <title>Echoes of Silence — Survival Horror</title>
   <meta name="description"
-    content="Jogo de terror pixel art no navegador inspirado em Five Nights at Freddy's 4, com Nightmare animatronics, Springlock Suit e o evento secreto The Thing.">
+    content="Echoes of Silence: A browser-based survival horror game set in an abandoned cemetery. Monitor security cameras, manage power, and survive 5 nights against twisted animatronics.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
-  <!-- Container principal do jogo -->
   <div id="game-wrapper">
     <div id="game-container">
 
-      <!-- Canvas de Renderização em Pixel Art (Resolução interna nítida) -->
-      <canvas id="gameCanvas" width="640" height="360"></canvas>
+      <!-- Main 3D Canvas -->
+      <canvas id="gameCanvas"></canvas>
 
-      <!-- HUD Superior do Jogo -->
-      <header id="game-hud" class="hud-layer hidden">
-        <div class="hud-left">
-          <div id="hud-time" class="pixel-text-lg">12 AM</div>
-          <div id="hud-night" class="pixel-text-sm">NIGHT: 1</div>
-        </div>
-        <div class="hud-center">
-          <div id="hud-room-name" class="pixel-text-sm">QUARTO PRINCIPAL</div>
-          <div id="hud-status" class="pixel-text-xs">LUZ: DESLIGADA</div>
-        </div>
-        <div class="hud-right">
-          <div id="audio-indicator" class="hud-badge">🔊 SOM ON</div>
-        </div>
-      </header>
+      <!-- ===== PLAYER VIEW (Office/Security Room) ===== -->
+      <div id="player-view" class="game-layer hidden">
 
-      <!-- Alerta de Animatrônico no Quarto & Botão Springlock -->
-      <div id="inside-alert-banner" class="hud-alert-banner hidden">
-        <span class="blink-red">⚠️ ANIMATRONIC INSIDE ⚠️</span>
-        <button id="btn-enter-springlock" class="pixel-btn btn-warning">
+        <!-- HUD Top Bar -->
+        <header id="hud-top">
+          <div class="hud-left">
+            <div id="hud-time" class="hud-text-lg">12 AM</div>
+            <div id="hud-night" class="hud-text-sm">NIGHT 1</div>
+          </div>
+          <div class="hud-center">
+            <div id="hud-alert" class="hud-alert hidden">MOTION DETECTED</div>
+          </div>
+          <div class="hud-right">
+            <div id="hud-power" class="hud-text-sm">
+              <span class="power-icon">⚡</span>
+              <span id="power-value">100</span>%
+            </div>
+            <div id="hud-power-bar">
+              <div id="hud-power-fill"></div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Left Door Area -->
+        <div id="left-door-zone" class="door-zone door-left">
+          <div class="door-visual" id="left-door-visual">
+            <div class="door-frame"></div>
+            <div class="door-panel" id="left-door-panel"></div>
+          </div>
+          <button id="btn-left-door" class="door-btn" title="Toggle Left Door">
+            <span class="door-btn-icon">🚪</span>
+            <span class="door-btn-label">LEFT DOOR</span>
+            <span class="door-btn-status" id="left-door-status">OPEN</span>
+          </button>
+          <button id="btn-left-light" class="light-btn" title="Left Light">
+            <span>🔦</span>
+          </button>
+        </div>
+
+        <!-- Right Door Area -->
+        <div id="right-door-zone" class="door-zone door-right">
+          <div class="door-visual" id="right-door-visual">
+            <div class="door-frame"></div>
+            <div class="door-panel" id="right-door-panel"></div>
+          </div>
+          <button id="btn-right-door" class="door-btn" title="Toggle Right Door">
+            <span class="door-btn-icon">🚪</span>
+            <span class="door-btn-label">RIGHT DOOR</span>
+            <span class="door-btn-status" id="right-door-status">OPEN</span>
+          </button>
+          <button id="btn-right-light" class="light-btn" title="Right Light">
+            <span>🔦</span>
+          </button>
+        </div>
+
+        <!-- Flashlight Button -->
+        <button id="btn-flashlight" class="flashlight-btn" title="Toggle Flashlight">
+          🔦 FLASHLIGHT
+        </button>
+
+        <!-- Camera Toggle -->
+        <button id="btn-open-camera" class="camera-toggle-btn" title="Open Camera Monitor">
+          <span class="cam-icon">📹</span>
+          <span>CAMERA</span>
+        </button>
+      </div>
+
+      <!-- ===== CAMERA MONITOR VIEW ===== -->
+      <div id="camera-view" class="game-layer hidden">
+        <div class="monitor-frame">
+
+          <!-- Monitor Header -->
+          <div class="monitor-header">
+            <div class="monitor-title">ECHOES OF SILENCE</div>
+            <div class="monitor-subtitle">SECURITY MONITORING SYSTEM</div>
+          </div>
+
+          <!-- Camera Feed Display -->
+          <div id="camera-feed" class="camera-feed">
+            <canvas id="cameraCanvas"></canvas>
+            <div id="camera-label" class="camera-label">CAM 01 — ENTRANCE</div>
+            <div id="camera-static" class="camera-static hidden"></div>
+            <div id="camera-offline" class="camera-offline hidden">
+              <span>⚠ CAMERA OFFLINE</span>
+            </div>
+            <div id="movement-detected" class="movement-alert hidden">
+              MOVEMENT DETECTED
+            </div>
+            <!-- Scanline overlay -->
+            <div class="scanline-overlay"></div>
+            <!-- Timestamp -->
+            <div id="camera-timestamp" class="camera-timestamp"></div>
+          </div>
+
+          <!-- Camera Selector Panel -->
+          <div class="camera-panel">
+            <div class="camera-buttons" id="camera-buttons">
+              <!-- Generated by JS -->
+            </div>
+
+            <!-- Mini Map -->
+            <div class="minimap-container">
+              <canvas id="minimapCanvas" width="280" height="320"></canvas>
+            </div>
+          </div>
+
+          <!-- Monitor Footer -->
+          <div class="monitor-footer">
+            <div class="monitor-power">
+              <span class="power-icon">⚡</span>
+              POWER: <span id="monitor-power-value">100</span>%
+            </div>
+            <div class="monitor-time">
+              <span id="monitor-time-value">12 AM</span>
+            </div>
+            <button id="btn-close-camera" class="close-monitor-btn" title="Close Monitor">
+              ✕ CLOSE MONITOR
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ANIMATRONIC INSIDE ALERT ===== -->
+      <div id="inside-alert-banner" class="alert-banner hidden">
+        <span class="alert-blink">⚠ ANIMATRONIC INSIDE ⚠</span>
+        <button id="btn-enter-springlock" class="springlock-enter-btn">
           ENTER SPRINGLOCK SUIT [E]
         </button>
       </div>
 
-      <!-- HUD da Roupa Springlock -->
+      <!-- ===== SPRINGLOCK SUIT HUD ===== -->
       <div id="springlock-hud" class="springlock-layer hidden">
         <div class="springlock-vignette"></div>
-        <div class="springlock-visor-mask"></div>
-        <div class="springlock-status-box">
-          <div class="pixel-text-sm yellow-glow">SPRINGLOCK TIMER</div>
-          <div id="springlock-countdown" class="pixel-text-xl red-glow">20</div>
-          <div id="springlock-msg" class="pixel-text-xs">PERMANEÇA IMÓVEL...</div>
-          <button id="btn-exit-springlock" class="pixel-btn btn-safe hidden">
-            SAIR DA ROUPA [E]
+        <div class="springlock-visor"></div>
+        <div class="springlock-info">
+          <div class="springlock-title">SPRINGLOCK TIMER</div>
+          <div id="springlock-countdown" class="springlock-counter">20</div>
+          <div id="springlock-msg" class="springlock-message">REMAIN STILL...</div>
+          <button id="btn-exit-springlock" class="springlock-exit-btn hidden">
+            EXIT SUIT [E]
           </button>
         </div>
       </div>
 
-      <!-- Evento Secreto: THE THING -->
-      <div id="the-thing-overlay" class="the-thing-layer hidden">
-        <div class="the-thing-darkness"></div>
-
-        <!-- Imagem fornecida pelo usuário, usada DIRETAMENTE sem pixelização destrutiva -->
-        <div class="the-thing-figure-wrap" id="the-thing-figure-wrap">
-          <img id="the-thing-img" src="assets/the-thing.jpg" alt="The Thing" draggable="false">
+      <!-- ===== THE THING EVENT ===== -->
+      <div id="the-thing-overlay" class="thing-layer hidden">
+        <div class="thing-darkness"></div>
+        <div class="thing-figure-wrap" id="thing-figure-wrap">
+          <img id="thing-img" src="assets/the-thing.jpg" alt="The Thing" draggable="false">
         </div>
-
-        <div class="the-thing-content">
-          <h2 class="the-thing-phrase pixel-text-md red-text glitch-phrase">
-            "the thing see you in the darkness"
-          </h2>
-
-          <div class="the-thing-qte-container">
-            <div class="the-thing-title pixel-text-sm">THE THING</div>
-            <div class="the-thing-prompt pixel-text-xs">DIGITE A SEQUÊNCIA RAPIDAMENTE!</div>
-
-            <div id="the-thing-sequence" class="qte-sequence-display">
-              <!-- Chaves geradas dinamicamente via JS -->
+        <div class="thing-content">
+          <h2 class="thing-phrase">"the thing see you in the darkness"</h2>
+          <div class="thing-qte">
+            <div class="thing-qte-title">THE THING</div>
+            <div class="thing-qte-prompt">TYPE THE SEQUENCE QUICKLY!</div>
+            <div id="thing-sequence" class="qte-sequence"></div>
+            <div id="thing-timer-bar" class="qte-timer-bar">
+              <div id="thing-timer-fill" class="qte-timer-fill"></div>
             </div>
-
-            <div id="the-thing-timer-bar" class="qte-timer-bar">
-              <div id="the-thing-timer-fill" class="qte-timer-fill"></div>
-            </div>
-
-            <!-- Botões virtuais QTE para telas de toque -->
-            <div id="the-thing-virtual-keys" class="qte-virtual-keys">
-              <button class="pixel-btn qte-btn" data-key="W">W</button>
-              <button class="pixel-btn qte-btn" data-key="A">A</button>
-              <button class="pixel-btn qte-btn" data-key="S">S</button>
-              <button class="pixel-btn qte-btn" data-key="D">D</button>
-              <button class="pixel-btn qte-btn" data-key="Q">Q</button>
-              <button class="pixel-btn qte-btn" data-key="E">E</button>
-              <button class="pixel-btn qte-btn" data-key="SPACE">ESPAÇO</button>
+            <div id="thing-virtual-keys" class="qte-virtual-keys">
+              <button class="qte-btn" data-key="W">W</button>
+              <button class="qte-btn" data-key="A">A</button>
+              <button class="qte-btn" data-key="S">S</button>
+              <button class="qte-btn" data-key="D">D</button>
+              <button class="qte-btn" data-key="Q">Q</button>
+              <button class="qte-btn" data-key="E">E</button>
+              <button class="qte-btn" data-key="SPACE">SPACE</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Notificação flutuante de sobrevivência/evento -->
+      <!-- ===== JUMPSCARE OVERLAY ===== -->
+      <div id="jumpscare-overlay" class="jumpscare-layer hidden">
+        <canvas id="jumpscareCanvas"></canvas>
+      </div>
+
+      <!-- ===== EVENT TOAST ===== -->
       <div id="event-toast" class="event-toast hidden">
-        <span id="event-toast-text" class="pixel-text-sm">YOU SURVIVED THE THING</span>
+        <span id="event-toast-text">YOU SURVIVED THE THING</span>
       </div>
 
-      <!-- Controles Virtuais para Celular / Mouse -->
-      <nav id="mobile-controls" class="mobile-controls-layer hidden" aria-label="Controles virtuais">
-        <div class="touch-nav-cluster">
-          <button id="touch-btn-left" class="pixel-nav-btn" title="Olhar Porta Esquerda">
-            <span class="nav-arrow">◀</span>
-            <span class="nav-label">ESQ [A]</span>
-          </button>
-          <div class="touch-nav-v-col">
-            <button id="touch-btn-bed" class="pixel-nav-btn" title="Olhar Cama">
-              <span class="nav-arrow">▲</span>
-              <span class="nav-label">CAMA [W]</span>
-            </button>
-            <button id="touch-btn-center" class="pixel-nav-btn" title="Voltar ao Centro">
-              <span class="nav-label">CENTRO [E]</span>
-            </button>
-            <button id="touch-btn-closet" class="pixel-nav-btn" title="Olhar Armário">
-              <span class="nav-arrow">▼</span>
-              <span class="nav-label">ARMÁRIO [S]</span>
-            </button>
-          </div>
-          <button id="touch-btn-right" class="pixel-nav-btn" title="Olhar Porta Direita">
-            <span class="nav-arrow">▶</span>
-            <span class="nav-label">DIR [D]</span>
-          </button>
-        </div>
-
-        <div class="touch-action-cluster">
-          <button id="touch-btn-light" class="pixel-action-btn" title="Segurar Lanterna">
-            🔦 LANTERNA<br><small>[ESPAÇO]</small>
-          </button>
-          <button id="touch-btn-door" class="pixel-action-btn" title="Segurar Fechar Porta/Armário">
-            🚪 FECHAR<br><small>[SHIFT / C]</small>
-          </button>
-        </div>
-      </nav>
-
-      <!-- Tela Inicial / Menu -->
+      <!-- ===== TITLE / MENU SCREEN ===== -->
       <section id="screen-menu" class="screen-overlay">
-        <div class="menu-box">
-          <h1 class="pixel-title red-glow">NIGHTMARE<br><span class="yellow-text">IN PIXEL</span></h1>
-          <p class="pixel-subtext">INSPIRADO EM FNAF 4 & EVENTO SECRETO THE THING</p>
+        <div class="menu-container">
+          <div class="menu-glitch-bg"></div>
+          <h1 class="menu-title">
+            <span class="title-echo">ECHOES</span>
+            <span class="title-of">OF</span>
+            <span class="title-silence">SILENCE</span>
+          </h1>
+          <p class="menu-subtitle">AN ABANDONED CEMETERY. TWISTED MACHINES. FIVE NIGHTS.</p>
 
-          <div class="menu-instructions">
-            <h3 class="pixel-text-sm">CONTROLES DO TECLADO:</h3>
-            <ul class="pixel-text-xs key-list">
-              <li><strong>A</strong>: Olhar para Porta Esquerda</li>
-              <li><strong>D</strong>: Olhar para Porta Direita</li>
-              <li><strong>W</strong>: Olhar para a Cama (Freddles)</li>
-              <li><strong>S</strong>: Olhar para o Armário (Foxy)</li>
-              <li><strong>E</strong>: Voltar ao Centro / Roupa Springlock</li>
-              <li><strong>ESPAÇO</strong>: Ligar / Desligar Lanterna</li>
-              <li><strong>SHIFT ou C</strong>: Segurar Fechada a Porta / Armário</li>
+          <div class="menu-controls">
+            <h3>CONTROLS</h3>
+            <ul>
+              <li><kbd>1</kbd>–<kbd>9</kbd>, <kbd>0</kbd>: Select Camera</li>
+              <li><kbd>TAB</kbd> / <kbd>C</kbd>: Toggle Camera Monitor</li>
+              <li><kbd>Q</kbd>: Left Door &nbsp;|&nbsp; <kbd>E</kbd>: Right Door</li>
+              <li><kbd>A</kbd>: Left Light &nbsp;|&nbsp; <kbd>D</kbd>: Right Light</li>
+              <li><kbd>F</kbd>: Flashlight</li>
+              <li><kbd>SPACE</kbd>: Springlock Suit (when available)</li>
             </ul>
           </div>
 
-          <div class="menu-actions">
-            <button id="btn-start-game" class="pixel-btn btn-primary pulse-btn">
-              INICIAR NOITE 1
-            </button>
-            <button id="btn-test-thing" class="pixel-btn btn-secondary">
-              FORÇAR THE THING (TESTE)
+          <div class="menu-night-select" id="menu-night-select">
+            <button class="menu-btn menu-btn-primary" id="btn-start-night" data-night="1">
+              START NIGHT 1
             </button>
           </div>
 
-          <div class="pixel-text-xs credits-note">
-            Áudio sintetizado proceduralmente (Web Audio API). Suporte touch para celular.
+          <div class="menu-footer">
+            Procedural audio via Web Audio API. No external assets required.
           </div>
         </div>
       </section>
 
-      <!-- Tela de Fim de Jogo (Game Over / Jumpscare) -->
+      <!-- ===== NIGHT INTRO SCREEN ===== -->
+      <section id="screen-night-intro" class="screen-overlay hidden">
+        <div class="night-intro-content">
+          <div class="night-intro-number" id="night-intro-number">NIGHT 1</div>
+          <div class="night-intro-time">12:00 AM</div>
+        </div>
+      </section>
+
+      <!-- ===== GAME OVER SCREEN ===== -->
       <section id="screen-gameover" class="screen-overlay hidden">
         <div class="gameover-box">
-          <h2 id="gameover-title" class="pixel-title red-glow blink-red">GAME OVER</h2>
-          <p id="gameover-reason" class="pixel-text-sm yellow-text">THE THING FOUND YOU</p>
-          <div id="gameover-time-survived" class="pixel-text-xs">SOBREVIVEU ATÉ: 3 AM</div>
-          <button id="btn-restart" class="pixel-btn btn-primary">
-            TENTAR NOVAMENTE
-          </button>
+          <h2 id="gameover-title" class="gameover-title">GAME OVER</h2>
+          <p id="gameover-reason" class="gameover-reason">TWISTED FREDDY GOT YOU</p>
+          <div id="gameover-time" class="gameover-time">SURVIVED UNTIL: 3 AM</div>
+          <button id="btn-retry" class="menu-btn menu-btn-primary">RETRY</button>
         </div>
       </section>
 
-      <!-- Tela de Vitória (6 AM) -->
+      <!-- ===== WIN / 6 AM SCREEN ===== -->
       <section id="screen-win" class="screen-overlay hidden">
         <div class="win-box">
-          <div class="six-am-display">
-            <div class="pixel-text-lg">5 AM</div>
-            <div class="pixel-title green-glow six-am-bounce">6:00 AM</div>
+          <div class="win-time-display">
+            <div class="win-5am">5 AM</div>
+            <div class="win-6am">6:00 AM</div>
           </div>
-          <p class="pixel-text-md yellow-text">VOCÊ SOBREVIVEU À NOITE!</p>
-          <p class="pixel-text-xs">Nightmare Bonnie, Chica, Freddy, Foxy e The Thing foram contidos.</p>
-          <button id="btn-play-again" class="pixel-btn btn-primary">
-            JOGAR NOVAMENTE
-          </button>
+          <p id="win-message" class="win-message">NIGHT COMPLETE</p>
+          <p id="win-subtitle" class="win-subtitle"></p>
+          <button id="btn-next-night" class="menu-btn menu-btn-primary">CONTINUE</button>
+        </div>
+      </section>
+
+      <!-- ===== FINAL WIN SCREEN ===== -->
+      <section id="screen-final-win" class="screen-overlay hidden">
+        <div class="final-win-box">
+          <div class="final-6am">6 AM</div>
+          <div class="final-survived">YOU SURVIVED</div>
+          <div class="final-location">THE CEMETERY</div>
+          <div class="final-title">ECHOES OF SILENCE</div>
+          <button id="btn-new-game" class="menu-btn menu-btn-primary">NEW GAME</button>
         </div>
       </section>
 
